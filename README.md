@@ -1,8 +1,8 @@
 # Projeto flutter: Mural virtual
 
 ## Funcionalidades:
-- Autenticação com e-mail e senha;
-- Redefinição de senha;
+- Autenticar com e-mail e senha;
+- Redefinir senha;
 - Adicionar um novo anúncio;
 - Visualizar os meus anúncios;
 - Excluir anúncio adicionado por mim;
