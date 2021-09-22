@@ -209,17 +209,24 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
-                _status
-                    ? TextButton(
-                        onPressed: () {},
-                        child: CircularProgressIndicator(
-                          color: Colors.deepPurple,
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return ScaleTransition(child: child, scale: animation);
+                  },
+                  child: _status
+                      ? TextButton(
+                          onPressed: () {},
+                          child: CircularProgressIndicator(
+                            color: Colors.deepPurple,
+                          ),
+                        )
+                      : BotaoCustomizado(
+                          texto: _cadastrar == false ? "Entrar" : "Cadastrar",
+                          onPressed: _validarCampos,
                         ),
-                      )
-                    : BotaoCustomizado(
-                        texto: _cadastrar == false ? "Entrar" : "Cadastrar",
-                        onPressed: _validarCampos,
-                      ),
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: 16),
                   child: Center(
