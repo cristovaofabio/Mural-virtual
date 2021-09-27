@@ -41,15 +41,14 @@ class _AnunciosState extends State<Anuncios> {
   Future _filtrarAnuncios() async {
     Query query = _bancoDados.collection("anuncios");
 
-    if(_itemSelecionadoEstado.isNotEmpty){
-      query = query.where("estado",isEqualTo: _itemSelecionadoEstado);
+    if (_itemSelecionadoEstado.isNotEmpty) {
+      query = query.where("estado", isEqualTo: _itemSelecionadoEstado);
     }
-    if(_itemSelecionadoCategoria.isNotEmpty){
-      query = query.where("categoria",isEqualTo: _itemSelecionadoCategoria);
-
+    if (_itemSelecionadoCategoria.isNotEmpty) {
+      query = query.where("categoria", isEqualTo: _itemSelecionadoCategoria);
     }
     final stream = query.snapshots();
-    
+
     stream.listen((dados) {
       _controller.add(dados);
     });
@@ -210,10 +209,12 @@ class _AnunciosState extends State<Anuncios> {
                       } else {
                         return Expanded(
                           child: StaggeredGridView.countBuilder(
-                            staggeredTileBuilder: (index) => StaggeredTile.fit(2),
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 4,
-                            mainAxisSpacing: 4,
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true, //A lista será a menor possívels
+                            staggeredTileBuilder: (index) => StaggeredTile.count(2, index.isEven ? 2 : 1),
+                            mainAxisSpacing: 4, //Espaçamento na horizontal
+                            crossAxisSpacing: 4, //Espaçamento na vertical
+                            crossAxisCount: 4, //Quantidade de unidades de medida (quadrados) na largura
                             itemCount: querySnapshot.docs.length,
                             itemBuilder: (BuildContext context, int index) {
                               List<DocumentSnapshot> anuncios = querySnapshot.docs.toList();
@@ -221,48 +222,35 @@ class _AnunciosState extends State<Anuncios> {
                               Anuncio anuncio = Anuncio.fromDocumentSnapshot(item);
 
                               return GestureDetector(
-                                onTap: (){
+                                onTap: () {
                                   Navigator.pushNamed(
-                                    context, 
+                                    context,
                                     GeradorRotas.ROTA_DETALHES_ANUNCIO,
                                     arguments: anuncio,
                                   );
                                 },
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Image.network(
-                                        anuncio.fotos[0],
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Text("${anuncio.preco}"),
-                                    ],
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: Image.network(
+                                    anuncio.fotos[0],
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null){
+                                        return child;
+                                      }
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          color: temaPadrao.primaryColor,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) => Text('Algum erro aconteceu!'),
                                   ),
                                 ),
                               );
                             },
                           ),
                         );
-                        /*
-                        ListView.separated(
-                          itemCount: querySnapshot.docs.length,
-                          separatorBuilder: (context, indice) => Divider(
-                            height: 2,
-                            color: Colors.grey,
-                          ),
-                          itemBuilder: (context, indice) {
-                            List<DocumentSnapshot> anuncios = querySnapshot.docs.toList();
-                            DocumentSnapshot item = anuncios[indice];
-                            Anuncio anuncio = Anuncio.fromDocumentSnapshot(item);
-
-                            return ItemAnuncio(
-                              anuncio: anuncio,
-                            );
-                          },
-                        );*/
                       }
                     }
                 }
