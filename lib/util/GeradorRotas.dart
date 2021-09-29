@@ -6,8 +6,9 @@ import 'package:olx/telas/Login.dart';
 import 'package:olx/telas/MeusAnuncios.dart';
 import 'package:olx/telas/NovoAnuncio.dart';
 import 'package:olx/telas/RecuperarSenha.dart';
+import 'package:olx/util/TransacaoAnimada.dart';
 
-class GeradorRotas{
+class GeradorRotas {
   static const String ROTA_HOME = "/home";
   static const String ROTA_LOGIN = "/login";
   static const String ROTA_RECUPERAR_SENHA = "/recuperarsenha";
@@ -27,11 +28,13 @@ class GeradorRotas{
       case ROTA_RECUPERAR_SENHA:
         return MaterialPageRoute(builder: (_) => RecuperarSenha());
       case ROTA_MEUS_ANUNCIOS:
-        return MaterialPageRoute(builder: (_) => MeusAnuncios());
+        return TransacaoAnimada(widget: MeusAnuncios());
+      /*MaterialPageRoute(builder: (_) => MeusAnuncios());*/
       case ROTA_NOVO_ANUNCIO:
         return MaterialPageRoute(builder: (_) => NovoAnuncio());
       case ROTA_DETALHES_ANUNCIO:
-        return MaterialPageRoute(builder: (_) => DetalhesAnuncio(args as Anuncio));
+        return MaterialPageRoute(
+            builder: (_) => DetalhesAnuncio(args as Anuncio));
       default:
         return _erroRota();
     }
