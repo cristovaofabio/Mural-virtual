@@ -116,7 +116,7 @@ class _AnunciosState extends State<Anuncios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Olx"),
+        title: Text("Todos os anúncios"),
         actions: <Widget>[
           PopupMenuButton<String>(
               onSelected: _escolhaMenuItem,
@@ -147,7 +147,7 @@ class _AnunciosState extends State<Anuncios> {
                         value: _itemSelecionadoEstado,
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 18,
+                          fontSize: 17,
                         ),
                         items: _listaItensEstados,
                         onChanged: (estado) {
@@ -163,7 +163,7 @@ class _AnunciosState extends State<Anuncios> {
                 Container(
                   color: Colors.grey[200],
                   width: 2,
-                  height: 60,
+                  height: 50,
                 ),
                 Expanded(
                   child: DropdownButtonHideUnderline(
@@ -173,7 +173,7 @@ class _AnunciosState extends State<Anuncios> {
                         value: _itemSelecionadoCategoria,
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 18,
+                          fontSize: 17,
                         ),
                         items: _listaItensCategorias,
                         onChanged: (categoria) {
