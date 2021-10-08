@@ -16,7 +16,7 @@
 ## Algumas telas do app:
 
 <div align="center">
-<img src="https://user-images.githubusercontent.com/19698296/134080909-f03c0b15-32fa-44da-94c9-59ca92fb0a68.png" width="300px" />
+<img src="https://user-images.githubusercontent.com/19698296/136566327-e5708eb6-3a64-42ef-96a4-3b2ab1a5eb1a.png" width="300px" />
 <img src="https://user-images.githubusercontent.com/19698296/134080920-bc496817-8a5b-44ba-8c14-de6216258373.png" width="300px" />
 </div>
 
