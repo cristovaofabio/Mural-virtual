@@ -2,11 +2,10 @@ import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Anuncio.dart';
-import 'package:olx/util/BotaoCustomizado.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DetalhesAnuncio extends StatefulWidget {
-  Anuncio anuncio;
+  final Anuncio anuncio;
   DetalhesAnuncio(this.anuncio);
 
   @override
@@ -31,8 +30,8 @@ class _DetalhesAnuncioState extends State<DetalhesAnuncio> {
     }).toList();
   }
 
-  _ligarTelefone(int telefone) async {
-    if (await canLaunch("tel:" + telefone.toString())) {
+  _ligarTelefone(String telefone) async {
+    if (await canLaunch("tel:" + telefone)) {
       await launch("tel:" + telefone.toString());
     } else {}
   }
@@ -64,51 +63,55 @@ class _DetalhesAnuncioState extends State<DetalhesAnuncio> {
                   dotIncreasedColor: temaPadrao.primaryColor,
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(10),
+              Padding(
+                padding: EdgeInsets.all(16),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    Text(
-                      "R\$ ${_anuncio.preco}",
-                      style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: temaPadrao.primaryColor),
-                    ),
                     Text(
                       "${_anuncio.titulo}",
                       style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Divider(),
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Preço:',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                     Text(
-                      "Descrição",
+                      "R\$ ${_anuncio.preco}",
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: temaPadrao.primaryColor),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16, bottom: 8),
+                      child: Text(
+                        'Descrição',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                     ),
                     Text(
                       "${_anuncio.descricao}",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Divider(),
-                    ),
-                    Text(
-                      "Contato",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                      padding: EdgeInsets.only(top: 16, bottom: 8),
+                      child: Text(
+                        'Contato',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                     ),
                     Padding(
@@ -125,17 +128,16 @@ class _DetalhesAnuncioState extends State<DetalhesAnuncio> {
               ),
             ],
           ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 10,
-            child: BotaoCustomizado(
-                texto: "Ligar",
-                onPressed: () {
-                  _ligarTelefone(_anuncio.telefone);
-                }),
-          ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: Icon(Icons.phone),
+        foregroundColor: Colors.white,
+        backgroundColor: temaPadrao.primaryColor,
+        onPressed: () {
+          _ligarTelefone(_anuncio.telefone);
+        },
+        label: Text("Ligar"),
       ),
     );
   }

@@ -372,12 +372,7 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                     controller: _controllerPreco,
                     type: TextInputType.number,
                     onSaved: (preco) {
-                      //Converter a moeda para o formato double:
-                      String moedaBD = preco.toString();
-                      moedaBD = moedaBD.replaceAll(".", "");
-                      moedaBD = moedaBD.replaceAll(",", ".");
-                      double valorDouble = double.parse(moedaBD);
-                      _anuncio.preco = valorDouble;
+                      _anuncio.preco = preco.toString();
                     },
                     validator: (valor) {
                       return Validador()
@@ -401,12 +396,7 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                     controller: _controllerTelefone,
                     type: TextInputType.phone,
                     onSaved: (tel) {
-                      String telefone = tel!.replaceAll("(", "");
-                      telefone = telefone.replaceAll(")", "");
-                      telefone = telefone.replaceAll("-", "");
-                      telefone = telefone.replaceAll(" ", "");
-                      int valor = int.parse(telefone);
-                      _anuncio.telefone = valor;
+                      _anuncio.telefone = tel.toString();
                     },
                     validator: (valor) {
                       String telefone = valor!.replaceAll("(", "");

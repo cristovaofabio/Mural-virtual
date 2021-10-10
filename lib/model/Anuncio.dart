@@ -5,8 +5,8 @@ class Anuncio {
   late String estado;
   late String categoria;
   late String titulo;
-  late double preco;
-  late int telefone;
+  late String preco;
+  late String telefone;
   late String descricao;
   late List<String> fotos;
 
