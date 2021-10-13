@@ -21,14 +21,11 @@
 </div>
 
 <div align="center">
-  <img src="https://user-images.githubusercontent.com/19698296/136703020-49310890-bb90-41e9-8c63-03557bd78045.gif" width="280px" />
+  <video src='https://user-images.githubusercontent.com/19698296/137164385-29d04799-c971-435e-b2c0-fc07cf1b3524.mp4' width=180/>
 </div>
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/19698296/134080921-3b0a5dab-fed3-48f4-802c-9652ece084ff.png" width="280px" />
+  <img src="https://user-images.githubusercontent.com/19698296/134080925-e099d1b4-1501-41bb-bc05-d6bb95c0c1da.png" width="280px" />
   <img src="https://user-images.githubusercontent.com/19698296/134997326-319cc84a-a9cf-40ac-aa16-dc6c4998063d.png" width="280px" />
-</div>
-
-<div align="center">
-  <img src="https://user-images.githubusercontent.com/19698296/136703028-ba43b4a4-26ed-467d-8e46-3d7b5c23f3b6.gif" width="280px" />
 </div>
