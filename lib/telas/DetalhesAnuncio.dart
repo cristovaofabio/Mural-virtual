@@ -54,13 +54,16 @@ class _DetalhesAnuncioState extends State<DetalhesAnuncio> {
             children: <Widget>[
               SizedBox(
                 height: 250,
-                child: Carousel(
-                  images: _getListaImagens(),
-                  dotSize: 6,
-                  dotBgColor: Colors.transparent,
-                  dotColor: Colors.white,
-                  autoplay: true,
-                  dotIncreasedColor: temaPadrao.primaryColor,
+                child: Hero(
+                  tag: "${_anuncio.id}",
+                  child: Carousel(
+                    images: _getListaImagens(),
+                    dotSize: 6,
+                    dotBgColor: Colors.transparent,
+                    dotColor: Colors.white,
+                    autoplay: true,
+                    dotIncreasedColor: temaPadrao.primaryColor,
+                  ),
                 ),
               ),
               Padding(

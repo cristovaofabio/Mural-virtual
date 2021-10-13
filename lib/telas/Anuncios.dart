@@ -211,15 +211,19 @@ class _AnunciosState extends State<Anuncios> {
                           child: StaggeredGridView.countBuilder(
                             padding: EdgeInsets.zero,
                             shrinkWrap: true, //A lista será a menor possívels
-                            staggeredTileBuilder: (index) => StaggeredTile.count(2, index.isEven ? 2 : 1),
+                            staggeredTileBuilder: (index) =>
+                                StaggeredTile.count(2, index.isEven ? 2 : 1),
                             mainAxisSpacing: 4, //Espaçamento na horizontal
                             crossAxisSpacing: 4, //Espaçamento na vertical
-                            crossAxisCount: 4, //Quantidade de unidades de medida (quadrados) na largura
+                            crossAxisCount:
+                                4, //Quantidade de unidades de medida (quadrados) na largura
                             itemCount: querySnapshot.docs.length,
                             itemBuilder: (BuildContext context, int index) {
-                              List<DocumentSnapshot> anuncios = querySnapshot.docs.toList();
+                              List<DocumentSnapshot> anuncios =
+                                  querySnapshot.docs.toList();
                               DocumentSnapshot item = anuncios[index];
-                              Anuncio anuncio = Anuncio.fromDocumentSnapshot(item);
+                              Anuncio anuncio =
+                                  Anuncio.fromDocumentSnapshot(item);
 
                               return GestureDetector(
                                 onTap: () {
@@ -231,20 +235,26 @@ class _AnunciosState extends State<Anuncios> {
                                 },
                                 child: AspectRatio(
                                   aspectRatio: 1,
-                                  child: Image.network(
-                                    anuncio.fotos[0],
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null){
-                                        return child;
-                                      }
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          color: temaPadrao.primaryColor,
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) => Text('Algum erro aconteceu!'),
+                                  child: Hero(
+                                    tag: "${anuncio.id}",
+                                    child: Image.network(
+                                      anuncio.fotos[0],
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            color: temaPadrao.primaryColor,
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Text('Algum erro aconteceu!'),
+                                    ),
                                   ),
                                 ),
                               );
