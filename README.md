@@ -13,6 +13,9 @@
 ## Armazenamento de dados:
 - Nuvem: [Firebase]( https://firebase.google.com/)
 
+## Design Pattern:
+- [Facade](https://en.wikipedia.org/wiki/Facade_pattern)
+
 ## Algumas telas do app:
 
 <div align="center">
