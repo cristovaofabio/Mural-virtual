@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Anuncio.dart';
+import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/Filtros.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/widget/MensagemCarregando.dart';
@@ -26,6 +26,7 @@ class _AnunciosState extends State<Anuncios> {
   List<String> _itensMenu = [];
   String _itemSelecionadoEstado = "";
   String _itemSelecionadoCategoria = "";
+  late Facade _facade;
 
   final _controller = StreamController<QuerySnapshot>.broadcast();
   FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
@@ -55,7 +56,6 @@ class _AnunciosState extends State<Anuncios> {
   }
 
   _escolhaMenuItem(String itemEscolhido) {
-    //print("Item escolhido: " + itemEscolhido);
     switch (itemEscolhido) {
       case "Meus anúncios":
         Navigator.pushNamed(context, GeradorRotas.ROTA_MEUS_ANUNCIOS);
@@ -71,22 +71,21 @@ class _AnunciosState extends State<Anuncios> {
   }
 
   _deslogarUsuario() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    await auth.signOut();
-    //Mudar para a tela de login:
-    Navigator.pushNamedAndRemoveUntil(
-        context, GeradorRotas.ROTA_INICIAL, (_) => false);
+    await _facade.deslogarUsuario().then((_) {
+      //Mudar para a tela de login:
+      Navigator.pushNamedAndRemoveUntil(
+          context, GeradorRotas.ROTA_INICIAL, (_) => false);
+    });
   }
 
   _verificarUsuarioLogado() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User? usuarioLogado = auth.currentUser;
+    _facade = new Facade(null);
 
-    if (usuarioLogado != null) {
-      //Usuário logado:
+    if (await _facade.usuarioLogado()) {
+      //Usuário on:
       _itensMenu = ["Meus anúncios", "Deslogar"];
     } else {
-      //Usuário não está logado:
+      //Usuário off:
       _itensMenu = ["Entrar/Cadastrar"];
     }
   }
@@ -110,6 +109,60 @@ class _AnunciosState extends State<Anuncios> {
     _verificarUsuarioLogado();
     _carregarItensDropDown();
     _adicionarListenerAnuncios();
+  }
+
+  Widget filtros() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: DropdownButtonHideUnderline(
+            child: Center(
+              child: DropdownButton(
+                iconEnabledColor: temaPadrao.primaryColor,
+                value: _itemSelecionadoEstado,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                ),
+                items: _listaItensEstados,
+                onChanged: (estado) {
+                  setState(() {
+                    _itemSelecionadoEstado = estado as String;
+                    _filtrarAnuncios();
+                  });
+                },
+              ),
+            ),
+          ),
+        ),
+        Container(
+          color: Colors.grey[200],
+          width: 2,
+          height: 50,
+        ),
+        Expanded(
+          child: DropdownButtonHideUnderline(
+            child: Center(
+              child: DropdownButton(
+                iconEnabledColor: temaPadrao.primaryColor,
+                value: _itemSelecionadoCategoria,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                ),
+                items: _listaItensCategorias,
+                onChanged: (categoria) {
+                  setState(() {
+                    _itemSelecionadoCategoria = categoria as String;
+                    _filtrarAnuncios();
+                  });
+                },
+              ),
+            ),
+          ),
+        )
+      ],
+    );
   }
 
   @override
@@ -137,57 +190,7 @@ class _AnunciosState extends State<Anuncios> {
         padding: EdgeInsets.all(10),
         child: Column(
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: DropdownButtonHideUnderline(
-                    child: Center(
-                      child: DropdownButton(
-                        iconEnabledColor: temaPadrao.primaryColor,
-                        value: _itemSelecionadoEstado,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 17,
-                        ),
-                        items: _listaItensEstados,
-                        onChanged: (estado) {
-                          setState(() {
-                            _itemSelecionadoEstado = estado as String;
-                            _filtrarAnuncios();
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.grey[200],
-                  width: 2,
-                  height: 50,
-                ),
-                Expanded(
-                  child: DropdownButtonHideUnderline(
-                    child: Center(
-                      child: DropdownButton(
-                        iconEnabledColor: temaPadrao.primaryColor,
-                        value: _itemSelecionadoCategoria,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 17,
-                        ),
-                        items: _listaItensCategorias,
-                        onChanged: (categoria) {
-                          setState(() {
-                            _itemSelecionadoCategoria = categoria as String;
-                            _filtrarAnuncios();
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
+            filtros(),
             StreamBuilder<QuerySnapshot>(
               stream: _controller.stream,
               builder: (context, snapshot) {

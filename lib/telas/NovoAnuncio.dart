@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:olx/model/Anuncio.dart';
-import 'package:olx/util/BotaoCustomizado.dart';
+import 'package:olx/util/widget/BotaoCustomizado.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:olx/util/Filtros.dart';

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/model/Anuncio.dart';
+import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/ItemAnuncio.dart';
 import 'package:olx/util/widget/MensagemCarregando.dart';
@@ -23,6 +23,7 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
   FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   String? _idUsuarioLogado;
+  late Facade _facade;
 
   Future _adicionarListenerAnuncios() async {
     await _recuperarDadosUsuario();
@@ -39,10 +40,8 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
   }
 
   _recuperarDadosUsuario() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User? usuarioAtual = auth.currentUser;
-
-    _idUsuarioLogado = usuarioAtual!.uid;
+    _facade = new Facade(null);
+    _idUsuarioLogado = await _facade.idUsuarioLogado();
   }
 
   Future<void> _removerAnuncio(Anuncio anuncio) async {
@@ -186,12 +185,3 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
     );
   }
 }
-/*
-
-ListView.builder(
-  itemCount: 4,
-  itemBuilder: (_, indice) {
-    return ItemAnuncio();
-  },
-)
-*/

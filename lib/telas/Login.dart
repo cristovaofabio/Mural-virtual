@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Usuario.dart';
-import 'package:olx/util/BotaoCustomizado.dart';
+import 'package:olx/util/widget/BotaoCustomizado.dart';
+import 'package:olx/util/facade/Facade.dart';
+import 'package:olx/util/FirebaseErros.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/InputCustomizado.dart';
 
@@ -17,93 +19,47 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
-  //TextEditingController _controllerEmailRecuperar = TextEditingController();
+  late Facade _facade;
 
   String _mensagemErro = "";
   bool _status = false;
   bool _cadastrar = false;
 
-  _cadastrarUsuario(Usuario usuario) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-
+  Future<void> _cadastrarUsuario() async {
     try {
-      await auth.createUserWithEmailAndPassword(
-          email: usuario.email, password: usuario.senha);
-
-      Navigator.pushNamedAndRemoveUntil(
-          context, GeradorRotas.ROTA_INICIAL, (_) => false);
-    } on FirebaseAuthException catch (e) {
+      await _facade.cadastrarUsuario().then((_) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, GeradorRotas.ROTA_INICIAL, (_) => false);
+      });
+    } on FirebaseAuthException catch (erro) {
       setState(() {
         _status = false;
+        _mensagemErro = getErrorString(erro.code);
       });
-      if (e.toString().contains("email-already-in-use")) {
-        setState(() {
-          _mensagemErro =
-              "O endereço de email já está sendo usado em outra conta";
-        });
-      } else if (e.toString().contains("weak-password")) {
-        print('A senha fornecida é muito fraca.');
-        setState(() {
-          _mensagemErro =
-              "A senha fornecida é muito fraca. Ela precisa ter mais de 6 caracteres";
-        });
-      } else {
-        setState(() {
-          _mensagemErro =
-              "Erro ao cadastrar novo usuário! Verifique os seus dados e tente novamente";
-        });
-      }
     } catch (e) {
       setState(() {
         _status = false;
-      });
-      setState(() {
         _mensagemErro =
             "Erro ao cadastrar novo usuário! Verifique os seus dados e tente novamente";
       });
     }
   }
 
-  _logarUsuario(Usuario usuario) async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-
+  _logarUsuario() async {
     try {
-      await auth.signInWithEmailAndPassword(
-          email: usuario.email, password: usuario.senha);
-
-      //_redirecionarUsuario(userCredential.user!.uid);
-      Navigator.pushNamedAndRemoveUntil(
-          context, GeradorRotas.ROTA_INICIAL, (_) => false);
+      await _facade.logarUsuario().then((_) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, GeradorRotas.ROTA_INICIAL, (_) => false);
+      });
     } on FirebaseAuthException catch (erro) {
       setState(() {
         _status = false;
+        _mensagemErro = getErrorString(erro.code);
       });
-      if (erro.toString().contains("user-not-found")) {
-        setState(() {
-          _mensagemErro = "Não existe usuário com esse endereço de e-mail";
-        });
-      } else if (erro.toString().contains("wrong-password")) {
-        setState(() {
-          _mensagemErro = "Senha incorreta";
-        });
-      } else if (erro.toString().contains("operation-not-allowed")) {
-        setState(() {
-          _mensagemErro = "Erro na conexão. Tente novamente mais tarde!";
-        });
-      } else if (erro.toString().contains("too-many-requests")) {
-        setState(() {
-          _mensagemErro =
-              "Muitas requisições! Tente novamente mais tarde ou use outra conta";
-        });
-      } else {
-        setState(() {
-          _mensagemErro = "Falha no login. Por favor, tente novamente";
-        });
-      }
     }
   }
 
-  _validarCampos() {
+  Future<void> _validarCampos() async {
     String email = _controllerEmail.text;
     String senha = _controllerSenha.text;
 
@@ -118,10 +74,12 @@ class _LoginState extends State<Login> {
         usuario.email = email;
         usuario.senha = senha;
 
+        _facade = new Facade(usuario);
+
         if (_cadastrar) {
-          _cadastrarUsuario(usuario);
+          await _cadastrarUsuario();
         } else {
-          _logarUsuario(usuario);
+          await _logarUsuario();
         }
       } else {
         setState(() {
@@ -163,17 +121,17 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: Text(
-                      "Entre com o seu e-mail e senha, ou realize o seu cadastro.",
-                      style: TextStyle(fontSize: 15, color: Colors.white60),
-                    ),
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    "Entre com o seu e-mail e senha, ou realize o seu cadastro.",
+                    style: TextStyle(fontSize: 15, color: Colors.white60),
                   ),
+                ),
               ],
             ),
           ),
           Container(
-            height: (alturaDispositivo - alturaBarraStatus) -130,
+            height: (alturaDispositivo - alturaBarraStatus) - 130,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -185,7 +143,9 @@ class _LoginState extends State<Login> {
               child: ListView(
                 //primary: false,
                 children: <Widget>[
-                  SizedBox(height: 50,),
+                  SizedBox(
+                    height: 50,
+                  ),
                   Padding(
                     padding: EdgeInsets.only(bottom: 10),
                     child: InputCustomizado(
@@ -255,7 +215,9 @@ class _LoginState extends State<Login> {
                           )
                         : BotaoCustomizado(
                             texto: _cadastrar == false ? "Entrar" : "Cadastrar",
-                            onPressed: _validarCampos,
+                            onPressed: () async {
+                              _validarCampos();
+                            },
                           ),
                   ),
                   Padding(
