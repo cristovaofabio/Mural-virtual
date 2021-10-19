@@ -1,10 +1,9 @@
 import 'package:brasil_fields/brasil_fields.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:olx/model/Anuncio.dart';
+import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/widget/BotaoCustomizado.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -23,14 +22,14 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
   final _formKey = GlobalKey<FormState>();
   List<XFile> _listaImagens = [];
   Anuncio _anuncio = Anuncio.gerarId();
-  FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
 
   List<DropdownMenuItem<String>> _listaItensEstados = [];
   List<DropdownMenuItem<String>> _listaItensCategorias = [];
 
   String _itemSelecionadoEstado = "";
   String _itemSelecionadoCategoria = "";
-  String? _idUsuarioLogado;
+
+  late Facade _facade;
 
   bool _status = false;
 
@@ -39,7 +38,7 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
   final TextEditingController _controllerTelefone = TextEditingController();
   final TextEditingController _controllerDescricao = TextEditingController();
 
-  Future _selecionarImagemGaleria() async {
+  Future<void> _selecionarImagemGaleria() async {
     final ImagePicker _picker = ImagePicker();
     XFile? imagemSelecionada;
     //recuperar imagem da galeria
@@ -51,32 +50,6 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
         _listaImagens = _listaImagens;
       });
     }
-  }
-
-  _salvarAnuncioFirestore() async {
-    await _bancoDados
-        .collection("meus_anuncios")
-        .doc(_idUsuarioLogado)
-        .collection("anuncios")
-        .doc(_anuncio.id)
-        .set(_anuncio.toMap());
-
-    await _bancoDados
-        .collection("anuncios")
-        .doc(_anuncio.id)
-        .set(_anuncio.toMap());
-
-    setState(() {
-      _status = false;
-      _itemSelecionadoEstado = "";
-      _itemSelecionadoCategoria = "";
-      _controllerTitulo.text ="";
-      _controllerPreco.text ="";
-      _controllerTelefone.text ="";
-      _controllerDescricao.text ="";
-      _anuncio = Anuncio.gerarId();
-      _listaImagens.clear();
-    });
   }
 
   _salvarAnuncio() async {
@@ -91,7 +64,6 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
     //Referenciar arquivo:
     FirebaseStorage armazem = FirebaseStorage.instance;
     Reference pastaRaiz = armazem.ref();
-
     int contador = 0;
 
     for (var imagem in _listaImagens) {
@@ -115,7 +87,20 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
 
           if (contador == _listaImagens.length) {
             //Salvar anúncio no Firestore:
-            _salvarAnuncioFirestore();
+            _facade = new Facade(anuncio: _anuncio);
+            await _facade.salvarAnuncio().then((_) {
+              setState(() {
+                _status = false;
+                _itemSelecionadoEstado = "";
+                _itemSelecionadoCategoria = "";
+                _controllerTitulo.text = "";
+                _controllerPreco.text = "";
+                _controllerTelefone.text = "";
+                _controllerDescricao.text = "";
+                _anuncio = Anuncio.gerarId();
+                _listaImagens.clear();
+              });
+            });
           }
         }
       });
@@ -129,18 +114,10 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
     _listaItensEstados = Filtros.getEstados();
   }
 
-  _recuperarDadosUsuario() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User? usuarioAtual = auth.currentUser;
-
-    _idUsuarioLogado = usuarioAtual!.uid;
-  }
-
   @override
   void initState() {
     super.initState();
     _carregarItensDropDown();
-    _recuperarDadosUsuario();
   }
 
   @override
@@ -178,8 +155,8 @@ class _NovoAnuncioState extends State<NovoAnuncio> {
                                 return Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 8),
                                   child: GestureDetector(
-                                    onTap: () {
-                                      _selecionarImagemGaleria();
+                                    onTap: () async {
+                                      await _selecionarImagemGaleria();
                                     },
                                     child: CircleAvatar(
                                       backgroundColor: Colors.grey[400],

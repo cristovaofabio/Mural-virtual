@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/model/Anuncio.dart';
 import 'package:olx/util/facade/Facade.dart';
@@ -21,7 +20,6 @@ class MeusAnuncios extends StatefulWidget {
 class _MeusAnunciosState extends State<MeusAnuncios> {
   final _controller = StreamController<QuerySnapshot>.broadcast();
   FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
   String? _idUsuarioLogado;
   late Facade _facade;
 
@@ -40,30 +38,13 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
   }
 
   _recuperarDadosUsuario() async {
-    _facade = new Facade(null);
+    _facade = new Facade(usuario: null);
     _idUsuarioLogado = await _facade.idUsuarioLogado();
   }
 
   Future<void> _removerAnuncio(Anuncio anuncio) async {
-    String id = anuncio.id;
-    List<String> fotos = anuncio.fotos;
-    
-    //Remover anúncio do Firestore
-    _bancoDados
-        .collection("meus_anuncios")
-        .doc(_idUsuarioLogado)
-        .collection("anuncios")
-        .doc(id)
-        .delete();
-    _bancoDados.collection("anuncios").doc(id).delete();
-
-    //Remover imagens do Storage:
-    for (String foto in fotos) {
-      try {
-        final ref = _storage.refFromURL(foto);
-        await ref.delete();
-      } catch (erro) {}
-    }
+    _facade = new Facade(usuario: null, anuncio: anuncio);
+    await _facade.removerAnuncio();
   }
 
   @override

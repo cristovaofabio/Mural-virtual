@@ -79,7 +79,7 @@ class _AnunciosState extends State<Anuncios> {
   }
 
   _verificarUsuarioLogado() async {
-    _facade = new Facade(null);
+    _facade = new Facade(usuario: null);
 
     if (await _facade.usuarioLogado()) {
       //Usuário on:

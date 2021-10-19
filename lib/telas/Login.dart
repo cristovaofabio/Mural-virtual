@@ -74,7 +74,7 @@ class _LoginState extends State<Login> {
         usuario.email = email;
         usuario.senha = senha;
 
-        _facade = new Facade(usuario);
+        _facade = new Facade(usuario: usuario);
 
         if (_cadastrar) {
           await _cadastrarUsuario();
