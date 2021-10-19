@@ -8,7 +8,7 @@ import 'package:olx/util/widget/BotaoCustomizado.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:olx/util/Filtros.dart';
-import 'package:olx/util/InputCustomizado.dart';
+import 'package:olx/util/widget/InputCustomizado.dart';
 import 'package:validadores/Validador.dart';
 
 class NovoAnuncio extends StatefulWidget {

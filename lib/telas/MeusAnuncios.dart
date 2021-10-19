@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:olx/main.dart';
 import 'package:olx/model/Anuncio.dart';
 import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/GeradorRotas.dart';
-import 'package:olx/util/ItemAnuncio.dart';
+import 'package:olx/util/widget/ItemAnuncio.dart';
 import 'package:olx/util/widget/MensagemCarregando.dart';
 import 'package:olx/util/widget/MensagemErro.dart';
 import 'package:olx/util/widget/MensagemNaoTemDados.dart';
@@ -59,49 +60,88 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
     _adicionarListenerAnuncios();
   }
 
-  Widget _caixaAlerta(BuildContext context, Anuncio anuncio) {
-    return AlertDialog(
-      title: Text("Atenção!"),
-      content: Text("Deseja realmente remover o anúncio?"),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Container(
-            padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-            decoration: BoxDecoration(
-              color: Colors.grey[600],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              "Cancelar",
-              style: TextStyle(
-                color: Colors.white,
+  _barraProgresso(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Aguarde!"),
+          content: Row(
+            children: [
+              CircularProgressIndicator(
+                color: temaPadrao.primaryColor,
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 5),
+                child: Text("Excluíndo"),
+              ),
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          elevation: 2,
+        );
+      },
+    );
+  }
+
+  _caixaAlerta(BuildContext context, Anuncio anuncio) {
+    return showDialog(
+      context: context,
+      builder: (builder) {
+        return AlertDialog(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          title: Text("Atenção!"),
+          content: Text("Deseja realmente remover o anúncio?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "Cancelar",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        TextButton(
-          onPressed: () async {
-            await _removerAnuncio(anuncio)
-                .then((value) => Navigator.of(context).pop());
-          },
-          child: Container(
-            padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-            decoration: BoxDecoration(
-              color: Colors.red[400],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              "Remover",
-              style: TextStyle(
-                color: Colors.white,
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); //Fechar este alert dialog
+                _barraProgresso(context); //Mostrar dialog de exclusão
+                await _removerAnuncio(anuncio).then((_) {
+                  Navigator.of(context).pop(); //Fechar dialog de exclusão
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                decoration: BoxDecoration(
+                  color: Colors.red[400],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "Remover",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -148,12 +188,7 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
                       return ItemAnuncio(
                         anuncio: anuncio,
                         onPressedRemover: () {
-                          showDialog(
-                            context: context,
-                            builder: (builder) {
-                              return _caixaAlerta(context, anuncio);
-                            },
-                          );
+                          _caixaAlerta(context, anuncio);
                         },
                       );
                     },

@@ -7,7 +7,7 @@ import 'package:olx/util/widget/BotaoCustomizado.dart';
 import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/FirebaseErros.dart';
 import 'package:olx/util/GeradorRotas.dart';
-import 'package:olx/util/InputCustomizado.dart';
+import 'package:olx/util/widget/InputCustomizado.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -45,7 +45,7 @@ class _LoginState extends State<Login> {
     }
   }
 
-  _logarUsuario() async {
+  Future<void> _logarUsuario() async {
     try {
       await _facade.logarUsuario().then((_) {
         Navigator.pushNamedAndRemoveUntil(

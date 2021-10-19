@@ -15,45 +15,41 @@ class _RecuperarSenhaState extends State<RecuperarSenha> {
   bool _status = false;
   final _formKey = GlobalKey<FormState>();
 
-  _recuperarSenha(String emailRecuperar) async {
+  Future<void> _recuperarSenha(String emailRecuperar) async {
     setState(() {
       _status = true;
     });
 
     FirebaseAuth auth = FirebaseAuth.instance;
     try {
-      await auth.sendPasswordResetEmail(email: emailRecuperar);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: <Widget>[
-              SizedBox(width: 17),
-              Expanded(child: Text("Verifique a sua caixa de e-mail"))
-            ],
+      await auth.sendPasswordResetEmail(email: emailRecuperar).then((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: <Widget>[
+                SizedBox(width: 17),
+                Expanded(child: Text("Verifique a sua caixa de e-mail"))
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
           ),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-        ),
-      );
-      setState(() {
-        _status = false;
-        _mensagemErro = "";
+        );
+        setState(() {
+          _status = false;
+          _mensagemErro = "";
+        });
       });
     } catch (erro) {
       if (erro.toString().contains("user-not-found")) {
         setState(() {
+          _status = false;
           _mensagemErro = "Não existe usuário com esse endereço de e-mail";
         });
       }
-      print("Erro ao recuperar senha: " + erro.toString());
     }
-
-    setState(() {
-      _status = false;
-    });
   }
 
   @override
@@ -103,13 +99,13 @@ class _RecuperarSenhaState extends State<RecuperarSenha> {
                           ),
                         )
                       : TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!
                                   .save(); //Vai chamar o método onSaved
                               //Execute uma determinada ação
                               print("E-mail validado: $_email");
-                              _recuperarSenha(_email);
+                              await _recuperarSenha(_email);
                             } else {
                               //O e-mail não é válido
                             }

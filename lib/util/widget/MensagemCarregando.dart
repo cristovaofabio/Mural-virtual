@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:olx/main.dart';
 
 class MensagemCarregando extends StatelessWidget {
 
@@ -20,7 +21,7 @@ class MensagemCarregando extends StatelessWidget {
             ),
           ),
           CircularProgressIndicator(
-            color: Colors.deepPurple,
+            color: temaPadrao.primaryColor,
           ),
         ],
       ),
