@@ -83,7 +83,7 @@ class _LoginState extends State<Login> {
         }
       } else {
         setState(() {
-          _mensagemErro = "A senha precisa ter mais de 6 caracteres";
+          _mensagemErro = "A senha precisa ter 6 ou mais caracteres";
         });
       }
     } else {

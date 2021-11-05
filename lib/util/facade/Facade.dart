@@ -18,10 +18,17 @@ class Facade {
   }
 
   Future<void> cadastrarUsuario() async {
-    await _auth.createUserWithEmailAndPassword(
+    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
       email: this.usuario!.email,
       password: this.usuario!.senha,
     );
+
+    this.usuario!.id = userCredential.user!.uid;
+
+    _bancoDados
+        .collection("usuarios")
+        .doc(userCredential.user!.uid)
+        .set(usuario!.toMap());
   }
 
   Future<void> logarUsuario() async {
