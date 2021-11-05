@@ -42,6 +42,7 @@ dependencies:
   url_launcher: ^6.0.10 #Realizar uma ligação
   introduction_screen: ^2.1.0 #Telas de apresentação do app
   flutter_slidable: ^0.6.0 #Lista lateral deslizante
+  provider: ^6.0.0 #monitorar mudanças em algumas variáveis
 
 dev_dependencies:
   flutter_test:

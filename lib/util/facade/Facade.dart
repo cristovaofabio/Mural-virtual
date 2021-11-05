@@ -31,11 +31,12 @@ class Facade {
         .set(usuario!.toMap());
   }
 
-  Future<void> logarUsuario() async {
-    await _auth.signInWithEmailAndPassword(
+  Future<UserCredential> logarUsuario() async {
+    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
       email: this.usuario!.email,
       password: this.usuario!.senha,
     );
+    return userCredential;
   }
 
   Future<void> deslogarUsuario() async {

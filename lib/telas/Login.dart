@@ -1,13 +1,13 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Usuario.dart';
+import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
 import 'package:olx/util/widget/BotaoCustomizado.dart';
-import 'package:olx/util/facade/Facade.dart';
-import 'package:olx/util/FirebaseErros.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/widget/InputCustomizado.dart';
+import 'package:olx/util/widget/MensagemConfirmacao.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -19,47 +19,12 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
-  late Facade _facade;
 
   String _mensagemErro = "";
   bool _status = false;
   bool _cadastrar = false;
 
-  Future<void> _cadastrarUsuario() async {
-    try {
-      await _facade.cadastrarUsuario().then((_) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, GeradorRotas.ROTA_INICIAL, (_) => false);
-      });
-    } on FirebaseAuthException catch (erro) {
-      setState(() {
-        _status = false;
-        _mensagemErro = getErrorString(erro.code);
-      });
-    } catch (e) {
-      setState(() {
-        _status = false;
-        _mensagemErro =
-            "Erro ao cadastrar novo usuário! Verifique os seus dados e tente novamente";
-      });
-    }
-  }
-
-  Future<void> _logarUsuario() async {
-    try {
-      await _facade.logarUsuario().then((_) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, GeradorRotas.ROTA_INICIAL, (_) => false);
-      });
-    } on FirebaseAuthException catch (erro) {
-      setState(() {
-        _status = false;
-        _mensagemErro = getErrorString(erro.code);
-      });
-    }
-  }
-
-  Future<void> _validarCampos() async {
+  bool _validarCampos() {
     String email = _controllerEmail.text;
     String senha = _controllerSenha.text;
 
@@ -67,29 +32,21 @@ class _LoginState extends State<Login> {
       if (senha.isNotEmpty && senha.length > 6) {
         setState(() {
           _status = true;
+          _mensagemErro = "";
         });
 
-        //Configurar usuário:
-        Usuario usuario = Usuario();
-        usuario.email = email;
-        usuario.senha = senha;
-
-        _facade = new Facade(usuario: usuario);
-
-        if (_cadastrar) {
-          await _cadastrarUsuario();
-        } else {
-          await _logarUsuario();
-        }
+        return true;
       } else {
         setState(() {
           _mensagemErro = "A senha precisa ter 6 ou mais caracteres";
         });
+        return false;
       }
     } else {
       setState(() {
         _mensagemErro = "E-mail incorreto";
       });
+      return false;
     }
   }
 
@@ -140,100 +97,157 @@ class _LoginState extends State<Login> {
             ),
             padding: EdgeInsets.all(10),
             child: Center(
-              child: ListView(
-                //primary: false,
-                children: <Widget>[
-                  SizedBox(
-                    height: 50,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: InputCustomizado(
-                      "Digite o seu e-mail",
-                      Icon(Icons.email_outlined, color: Colors.black),
-                      controller: _controllerEmail,
-                      autofocus: true,
-                      type: TextInputType.emailAddress,
+              child: Consumer<GerenciadorUsuario>(
+                  builder: (_, gerenciadorUsuario, __) {
+                return ListView(
+                  //primary: false,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 50,
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: InputCustomizado(
-                      "Digite uma senha",
-                      Icon(Icons.vpn_key, color: Colors.black),
-                      controller: _controllerSenha,
-                      maxLinhas: 1,
-                      obscure: true,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("Logar"),
-                      Switch(
-                          value: _cadastrar,
-                          onChanged: (bool valor) {
-                            setState(() {
-                              _cadastrar = valor;
-                            });
-                          }),
-                      Text("Cadastrar"),
-                    ],
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 20),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          //Abrir a página de recuperação de senha
-                          Navigator.pushNamed(
-                              context, GeradorRotas.ROTA_RECUPERAR_SENHA);
-                        },
-                        child: Text(
-                          "Esqueci minha senha!",
-                          style: TextStyle(
-                            color: Colors.deepPurple,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: InputCustomizado(
+                        "Digite o seu e-mail",
+                        Icon(Icons.email_outlined, color: Colors.black),
+                        controller: _controllerEmail,
+                        autofocus: true,
+                        type: TextInputType.emailAddress,
                       ),
                     ),
-                  ),
-                  AnimatedSwitcher(
-                    duration: Duration(milliseconds: 200),
-                    transitionBuilder:
-                        (Widget child, Animation<double> animation) {
-                      return ScaleTransition(child: child, scale: animation);
-                    },
-                    child: _status
-                        ? TextButton(
-                            onPressed: () {},
-                            child: CircularProgressIndicator(
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: InputCustomizado(
+                        "Digite uma senha",
+                        Icon(Icons.vpn_key, color: Colors.black),
+                        controller: _controllerSenha,
+                        maxLinhas: 1,
+                        obscure: true,
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text("Logar"),
+                        Switch(
+                            value: _cadastrar,
+                            onChanged: (bool valor) {
+                              setState(() {
+                                _cadastrar = valor;
+                              });
+                            }),
+                        Text("Cadastrar"),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 20),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            //Abrir a página de recuperação de senha
+                            Navigator.pushNamed(
+                                context, GeradorRotas.ROTA_RECUPERAR_SENHA);
+                          },
+                          child: Text(
+                            "Esqueci minha senha!",
+                            style: TextStyle(
                               color: Colors.deepPurple,
+                              fontWeight: FontWeight.bold,
                             ),
-                          )
-                        : BotaoCustomizado(
-                            texto: _cadastrar == false ? "Entrar" : "Cadastrar",
-                            onPressed: () async {
-                              _validarCampos();
-                            },
                           ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Center(
-                      child: Text(
-                        _mensagemErro,
-                        style: TextStyle(
-                          color: Colors.red[300],
-                          fontSize: 18,
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                    AnimatedSwitcher(
+                      duration: Duration(milliseconds: 200),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return ScaleTransition(child: child, scale: animation);
+                      },
+                      child: _status
+                          ? TextButton(
+                              onPressed: () {},
+                              child: CircularProgressIndicator(
+                                color: Colors.deepPurple,
+                              ),
+                            )
+                          : BotaoCustomizado(
+                              texto: _cadastrar == false ? "Entrar" : "Cadastrar",
+                              onPressed: () async {
+                                String email = _controllerEmail.text;
+                                String senha = _controllerSenha.text;
+
+                                Usuario usuario = Usuario();
+                                usuario.email = email;
+                                usuario.senha = senha;
+
+                                if (_validarCampos() && _cadastrar == false) {
+                                  gerenciadorUsuario.entrar(
+                                    usuario: usuario,
+                                    sucesso: (_) {
+                                      Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          GeradorRotas.ROTA_INICIAL,
+                                          (_) => false);
+                                    },
+                                    fracasso: (erro) {
+                                      setState(() {
+                                        _status = false;
+                                      });
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        mensagemConfirmacao(
+                                          '$erro',
+                                          Color(0xFFEF5350),
+                                          Icons.mood_bad_sharp,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else if (_validarCampos() && _cadastrar == true) {
+                                  //cadastrar um novo usuario:
+
+                                  gerenciadorUsuario.cadastrar(
+                                    usuario: usuario,
+                                    fracasso: (erro) {
+                                      setState(() {
+                                        _status = false;
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        mensagemConfirmacao(
+                                          '$erro',
+                                          Color(0xFFEF5350),
+                                          Icons.mood_bad_sharp,
+                                        ),
+                                      );
+                                    },
+                                    sucesso: (_) {
+                                      Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          GeradorRotas.ROTA_INICIAL,
+                                          (_) => false);
+                                    },
+                                  );
+                                } else {}
+                              },
+                            ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Center(
+                        child: Text(
+                          _mensagemErro,
+                          style: TextStyle(
+                            color: Colors.red[300],
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ),
           ),
         ],

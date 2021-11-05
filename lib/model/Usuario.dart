@@ -1,18 +1,21 @@
-class Usuario{
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  late String id;
-  late String nome;
-  late String email;
-  late String senha;
-  
+class Usuario {
+  String id = "";
+  String nome = "";
+  String email = "";
+  String senha = "";
+
+  FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
+
   Usuario();
 
-  Map<String, dynamic> toMap(){
-    Map<String,dynamic> map = {
-      "id"    :this.id,
-      //"nome"  :this.nome,
-      "email" :this.email
-    };
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> map = {"id": this.id, "email": this.email};
     return map;
+  }
+
+  Future<void> salvarDados() async {
+    await _bancoDados.collection("usuarios").doc(this.id).set(toMap());
   }
 }

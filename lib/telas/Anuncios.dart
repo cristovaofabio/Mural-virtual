@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Anuncio.dart';
-import 'package:olx/util/facade/Facade.dart';
+import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
 import 'package:olx/util/Filtros.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/widget/MensagemCarregando.dart';
 import 'package:olx/util/widget/MensagemErro.dart';
 import 'package:olx/util/widget/MensagemNaoTemDados.dart';
+import 'package:provider/provider.dart';
 
 class Anuncios extends StatefulWidget {
   const Anuncios({Key? key}) : super(key: key);
@@ -26,7 +27,6 @@ class _AnunciosState extends State<Anuncios> {
   List<String> _itensMenu = [];
   String _itemSelecionadoEstado = "";
   String _itemSelecionadoCategoria = "";
-  late Facade _facade;
 
   final _controller = StreamController<QuerySnapshot>.broadcast();
   FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
@@ -55,41 +55,6 @@ class _AnunciosState extends State<Anuncios> {
     });
   }
 
-  _escolhaMenuItem(String itemEscolhido) {
-    switch (itemEscolhido) {
-      case "Meus anúncios":
-        Navigator.pushNamed(context, GeradorRotas.ROTA_MEUS_ANUNCIOS);
-        break;
-      case "Entrar/Cadastrar":
-        Navigator.pushNamedAndRemoveUntil(
-            context, GeradorRotas.ROTA_LOGIN, (_) => false);
-        break;
-      case "Deslogar":
-        _deslogarUsuario();
-        break;
-    }
-  }
-
-  _deslogarUsuario() async {
-    await _facade.deslogarUsuario().then((_) {
-      //Mudar para a tela de login:
-      Navigator.pushNamedAndRemoveUntil(
-          context, GeradorRotas.ROTA_INICIAL, (_) => false);
-    });
-  }
-
-  _verificarUsuarioLogado() async {
-    _facade = new Facade(usuario: null);
-
-    if (await _facade.usuarioLogado()) {
-      //Usuário on:
-      _itensMenu = ["Meus anúncios", "Deslogar"];
-    } else {
-      //Usuário off:
-      _itensMenu = ["Entrar/Cadastrar"];
-    }
-  }
-
   _carregarItensDropDown() {
     //Carregar as categorias:
     _listaItensCategorias = Filtros.getCategorias();
@@ -106,7 +71,6 @@ class _AnunciosState extends State<Anuncios> {
   @override
   void initState() {
     super.initState();
-    _verificarUsuarioLogado();
     _carregarItensDropDown();
     _adicionarListenerAnuncios();
   }
@@ -171,19 +135,44 @@ class _AnunciosState extends State<Anuncios> {
       appBar: AppBar(
         title: Text("Todos os anúncios"),
         actions: <Widget>[
-          PopupMenuButton<String>(
-              onSelected: _escolhaMenuItem,
-              itemBuilder: (contexto) {
-                //Constroi os ítens que serão exibidos
-                return _itensMenu.map((String item) {
-                  //Percorre os ítens da lista
-                  return PopupMenuItem<String>(
-                    //Exibe os ítens na forma de menu
-                    value: item,
-                    child: Text(item),
-                  );
-                }).toList();
-              }),
+          //Mudar o menu popUp de acordo com o usuário:
+          Consumer<GerenciadorUsuario>(
+            builder: (_, gerenciadorUsuario, __) {
+              if (gerenciadorUsuario.usuarioLogado.id.isNotEmpty) {
+                _itensMenu = ["Meus anúncios", "Deslogar"];
+              } else {
+                _itensMenu = ["Entrar/Cadastrar"];
+              }
+              return PopupMenuButton<String>(
+                onSelected: (String itemEscolhido) {
+                  switch (itemEscolhido) {
+                    case "Meus anúncios":
+                      Navigator.pushNamed(
+                          context, GeradorRotas.ROTA_MEUS_ANUNCIOS);
+                      break;
+                    case "Entrar/Cadastrar":
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, GeradorRotas.ROTA_LOGIN, (_) => false);
+                      break;
+                    case "Deslogar":
+                      gerenciadorUsuario.sair();
+                      break;
+                  }
+                },
+                itemBuilder: (contexto) {
+                  //Constroi os ítens que serão exibidos
+                  return _itensMenu.map((String item) {
+                    //Percorre os ítens da lista
+                    return PopupMenuItem<String>(
+                      //Exibe os ítens na forma de menu
+                      value: item,
+                      child: Text(item),
+                    );
+                  }).toList();
+                },
+              );
+            },
+          ),
         ],
       ),
       body: Container(
