@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:olx/main.dart';
@@ -9,9 +6,6 @@ import 'package:olx/model/gerenciadores/GerenciadorAnuncio.dart';
 import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
 import 'package:olx/util/Filtros.dart';
 import 'package:olx/util/GeradorRotas.dart';
-//import 'package:olx/util/widget/MensagemCarregando.dart';
-//import 'package:olx/util/widget/MensagemErro.dart';
-//import 'package:olx/util/widget/MensagemNaoTemDados.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -30,33 +24,6 @@ class _AnunciosState extends State<Anuncios> {
   String _itemSelecionadoEstado = "";
   String _itemSelecionadoCategoria = "";
 
-  final _controller = StreamController<QuerySnapshot>.broadcast();
-  FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
-
-  /* Future _adicionarListenerAnuncios() async {
-    final stream = _bancoDados.collection("anuncios").snapshots();
-
-    stream.listen((dados) {
-      _controller.add(dados);
-    });
-  } */
-
-  Future _filtrarAnuncios() async {
-    Query query = _bancoDados.collection("anuncios");
-
-    if (_itemSelecionadoEstado.isNotEmpty) {
-      query = query.where("estado", isEqualTo: _itemSelecionadoEstado);
-    }
-    if (_itemSelecionadoCategoria.isNotEmpty) {
-      query = query.where("categoria", isEqualTo: _itemSelecionadoCategoria);
-    }
-    final stream = query.snapshots();
-
-    stream.listen((dados) {
-      _controller.add(dados);
-    });
-  }
-
   _carregarItensDropDown() {
     //Carregar as categorias:
     _listaItensCategorias = Filtros.getCategorias();
@@ -65,74 +32,14 @@ class _AnunciosState extends State<Anuncios> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _controller.close();
-  }
-
-  @override
   void initState() {
     super.initState();
     _carregarItensDropDown();
-    //_adicionarListenerAnuncios();
-  }
-
-  Widget filtros() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: DropdownButtonHideUnderline(
-            child: Center(
-              child: DropdownButton(
-                iconEnabledColor: temaPadrao.primaryColor,
-                value: _itemSelecionadoEstado,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                ),
-                items: _listaItensEstados,
-                onChanged: (estado) {
-                  setState(() {
-                    _itemSelecionadoEstado = estado as String;
-                    _filtrarAnuncios();
-                  });
-                },
-              ),
-            ),
-          ),
-        ),
-        Container(
-          color: Colors.grey[200],
-          width: 2,
-          height: 50,
-        ),
-        Expanded(
-          child: DropdownButtonHideUnderline(
-            child: Center(
-              child: DropdownButton(
-                iconEnabledColor: temaPadrao.primaryColor,
-                value: _itemSelecionadoCategoria,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                ),
-                items: _listaItensCategorias,
-                onChanged: (categoria) {
-                  setState(() {
-                    _itemSelecionadoCategoria = categoria as String;
-                    _filtrarAnuncios();
-                  });
-                },
-              ),
-            ),
-          ),
-        )
-      ],
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Todos os anúncios"),

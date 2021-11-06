@@ -4,12 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Anuncio.dart';
+import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
 import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/widget/ItemAnuncio.dart';
 import 'package:olx/util/widget/MensagemCarregando.dart';
 import 'package:olx/util/widget/MensagemErro.dart';
 import 'package:olx/util/widget/MensagemNaoTemDados.dart';
+import 'package:provider/provider.dart';
 
 class MeusAnuncios extends StatefulWidget {
   const MeusAnuncios({Key? key}) : super(key: key);
@@ -147,14 +149,18 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
 
   @override
   Widget build(BuildContext context) {
+    final gerenciadorUsuario = context.watch<GerenciadorUsuario>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Meus anúncios"),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, GeradorRotas.ROTA_NOVO_ANUNCIO);
-        },
+        onPressed: gerenciadorUsuario.usuarioLogado.email == "fulano@gmail.com"
+            ? null
+            : () {
+                Navigator.pushNamed(context, GeradorRotas.ROTA_NOVO_ANUNCIO);
+              },
         foregroundColor: Colors.white,
         child: Icon(Icons.add),
       ),
