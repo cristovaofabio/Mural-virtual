@@ -31,6 +31,13 @@ void main() async {
           create: (_) => GerenciadorAnuncio(),
           lazy: false, //Carregar imediatamente o GerenciadorAnuncio
         ),
+        //Sempre que o ítem 1 sofrer alguma modificação, o ítem 2 é altualizado:
+        ChangeNotifierProxyProvider<GerenciadorUsuario, GerenciadorAnuncio>(
+          create: (_) => GerenciadorAnuncio(),
+          lazy: false,
+          update: (_, gerenciadorUsuario, gerenciadorAnuncio) =>
+              gerenciadorAnuncio!..atualizarUsuario(gerenciadorUsuario),
+        ),
       ],
       child: MaterialApp(
         title: "AnunciAqui",

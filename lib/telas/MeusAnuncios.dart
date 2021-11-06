@@ -4,12 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Anuncio.dart';
-import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
+import 'package:olx/model/gerenciadores/GerenciadorAnuncio.dart';
 import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/widget/ItemAnuncio.dart';
-import 'package:olx/util/widget/MensagemCarregando.dart';
-import 'package:olx/util/widget/MensagemErro.dart';
 import 'package:olx/util/widget/MensagemNaoTemDados.dart';
 import 'package:provider/provider.dart';
 
@@ -149,58 +147,38 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
 
   @override
   Widget build(BuildContext context) {
-    final gerenciadorUsuario = context.watch<GerenciadorUsuario>();
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Meus anúncios"),
+        elevation: 0,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: gerenciadorUsuario.usuarioLogado.email == "fulano@gmail.com"
-            ? null
-            : () {
-                Navigator.pushNamed(context, GeradorRotas.ROTA_NOVO_ANUNCIO);
-              },
+        onPressed: () {
+          Navigator.pushNamed(context, GeradorRotas.ROTA_NOVO_ANUNCIO);
+        },
         foregroundColor: Colors.white,
         child: Icon(Icons.add),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _controller.stream,
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.waiting:
-              return MensagemCarregando(
-                texto: "Carregando anúncios...",
-              );
-            case ConnectionState.active:
-            case ConnectionState.done:
-              if (snapshot.hasError) {
-                return MensagemErro(texto: "Erro ao carregar os dados");
-              } else {
-                QuerySnapshot? querySnapshot = snapshot.data;
-                if (querySnapshot!.docs.length == 0) {
-                  return MensagemNaoTemDados(
-                      texto: "Não existem anúncios cadastrados!");
-                } else {
-                  return ListView.builder(
-                    itemCount: querySnapshot.docs.length,
-                    itemBuilder: (context, indice) {
-                      List<DocumentSnapshot> anuncios =
-                          querySnapshot.docs.toList();
-                      DocumentSnapshot item = anuncios[indice];
-                      Anuncio anuncio = Anuncio.fromDocumentSnapshot(item);
+      body: Consumer<GerenciadorAnuncio>(
+        builder: (_, gerenciadorAnuncio, __) {
+          if (gerenciadorAnuncio.meusAnuncios.isEmpty) {
+            return MensagemNaoTemDados(
+                texto: "Não existem anúncios cadastrados!");
+          } else {
+            List<Anuncio> meusAnuncios = gerenciadorAnuncio.meusAnuncios;
+            return ListView.builder(
+              itemCount: gerenciadorAnuncio.meusAnuncios.length,
+              itemBuilder: (context, indice) {
+                Anuncio anuncio = meusAnuncios[indice];
 
-                      return ItemAnuncio(
-                        anuncio: anuncio,
-                        onPressedRemover: () {
-                          _caixaAlerta(context, anuncio);
-                        },
-                      );
-                    },
-                  );
-                }
-              }
+                return ItemAnuncio(
+                  anuncio: anuncio,
+                  onPressedRemover: () {
+                    _caixaAlerta(context, anuncio);
+                  },
+                );
+              },
+            );
           }
         },
       ),
