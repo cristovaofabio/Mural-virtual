@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:olx/model/gerenciadores/GerenciadorAnuncio.dart';
 import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
 import 'package:olx/telas/Anuncios.dart';
 import 'package:olx/util/GeradorRotas.dart';
@@ -24,7 +25,11 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => GerenciadorUsuario(),
-          lazy: false, //Carregar imediatamente o GerenciadorUsuarios
+          lazy: false, //Carregar imediatamente o GerenciadorUsuario
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GerenciadorAnuncio(),
+          lazy: false, //Carregar imediatamente o GerenciadorAnuncio
         ),
       ],
       child: MaterialApp(
