@@ -13,6 +13,13 @@ class GerenciadorUsuario extends ChangeNotifier {
     _verificarUsuario();
   }
 
+  bool _carregando = false;
+  bool get carregando => _carregando;
+  set carregando(bool value){
+    _carregando = value;
+    notifyListeners();
+  }
+
   Future<void> _verificarUsuario({User? user}) async {
     User? usuario;
 
@@ -41,6 +48,8 @@ class GerenciadorUsuario extends ChangeNotifier {
       {required Usuario usuario,
       required Function fracasso,
       required Function sucesso}) async {
+    
+    carregando = true;
     try {
       UserCredential userCredential = await auth.signInWithEmailAndPassword(
         email: usuario.email,
@@ -53,12 +62,15 @@ class GerenciadorUsuario extends ChangeNotifier {
     } on FirebaseAuthException catch (erro) {
       fracasso(getErrorString(erro.code));
     }
+    carregando = false;
   }
 
   Future<void> cadastrar(
       {required Usuario usuario,
       required Function fracasso,
       required Function sucesso}) async {
+
+    carregando = true;
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
           email: usuario.email, password: usuario.senha);
@@ -72,6 +84,7 @@ class GerenciadorUsuario extends ChangeNotifier {
     } on FirebaseAuthException catch (erro) {
       fracasso(getErrorString(erro.code));
     }
+    carregando = false;
   }
 
   Future<void> sair() async {

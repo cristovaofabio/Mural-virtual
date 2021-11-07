@@ -20,34 +20,30 @@ class _LoginState extends State<Login> {
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
 
-  String _mensagemErro = "";
-  bool _status = false;
   bool _cadastrar = false;
 
-  bool _validarCampos() {
+  bool _validarCampos(BuildContext context) {
+    String _mensagemErro = "";
     String email = _controllerEmail.text;
     String senha = _controllerSenha.text;
 
     if (EmailValidator.validate(email)) {
       if (senha.isNotEmpty && senha.length > 6) {
-        setState(() {
-          _status = true;
-          _mensagemErro = "";
-        });
-
         return true;
       } else {
-        setState(() {
-          _mensagemErro = "A senha precisa ter 6 ou mais caracteres";
-        });
-        return false;
+        _mensagemErro = "A senha precisa ter 6 ou mais caracteres";
       }
     } else {
-      setState(() {
-        _mensagemErro = "E-mail incorreto";
-      });
-      return false;
+      _mensagemErro = "E-mail inválido";
     }
+    ScaffoldMessenger.of(context).showSnackBar(
+      mensagemConfirmacao(
+        _mensagemErro,
+        Color(0xFFEF5350),
+        Icons.mood_bad_sharp,
+      ),
+    );
+    return false;
   }
 
   @override
@@ -165,7 +161,7 @@ class _LoginState extends State<Login> {
                           (Widget child, Animation<double> animation) {
                         return ScaleTransition(child: child, scale: animation);
                       },
-                      child: _status
+                      child: gerenciadorUsuario.carregando
                           ? TextButton(
                               onPressed: () {},
                               child: CircularProgressIndicator(
@@ -173,7 +169,8 @@ class _LoginState extends State<Login> {
                               ),
                             )
                           : BotaoCustomizado(
-                              texto: _cadastrar == false ? "Entrar" : "Cadastrar",
+                              texto:
+                                  _cadastrar == false ? "Entrar" : "Cadastrar",
                               onPressed: () async {
                                 String email = _controllerEmail.text;
                                 String senha = _controllerSenha.text;
@@ -182,7 +179,7 @@ class _LoginState extends State<Login> {
                                 usuario.email = email;
                                 usuario.senha = senha;
 
-                                if (_validarCampos() && _cadastrar == false) {
+                                if (_validarCampos(context) && _cadastrar == false) {
                                   gerenciadorUsuario.entrar(
                                     usuario: usuario,
                                     sucesso: (_) {
@@ -192,10 +189,8 @@ class _LoginState extends State<Login> {
                                           (_) => false);
                                     },
                                     fracasso: (erro) {
-                                      setState(() {
-                                        _status = false;
-                                      });
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         mensagemConfirmacao(
                                           '$erro',
                                           Color(0xFFEF5350),
@@ -204,15 +199,13 @@ class _LoginState extends State<Login> {
                                       );
                                     },
                                   );
-                                } else if (_validarCampos() && _cadastrar == true) {
+                                } else if (_validarCampos(context) &&
+                                    _cadastrar == true) {
                                   //cadastrar um novo usuario:
 
                                   gerenciadorUsuario.cadastrar(
                                     usuario: usuario,
                                     fracasso: (erro) {
-                                      setState(() {
-                                        _status = false;
-                                      });
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         mensagemConfirmacao(
@@ -232,18 +225,6 @@ class _LoginState extends State<Login> {
                                 } else {}
                               },
                             ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Center(
-                        child: Text(
-                          _mensagemErro,
-                          style: TextStyle(
-                            color: Colors.red[300],
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 );

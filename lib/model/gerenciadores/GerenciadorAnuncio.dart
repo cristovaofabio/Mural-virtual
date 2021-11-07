@@ -4,16 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:olx/model/Anuncio.dart';
 import 'package:olx/model/Usuario.dart';
-import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
 
 class GerenciadorAnuncio extends ChangeNotifier {
   final FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
   StreamSubscription? _subscription;
-  StreamSubscription? _subscriptionMeusAnuncios;
 
   late Usuario usuario;
   List<Anuncio> todosAnuncios = [];
-  List<Anuncio> meusAnuncios = [];
 
   String _estado = "";
   String _categoria = "";
@@ -66,35 +63,9 @@ class GerenciadorAnuncio extends ChangeNotifier {
     return anunciosFiltrados;
   }
 
-  void atualizarUsuario(GerenciadorUsuario gerenciadorUsuario) {
-    usuario = gerenciadorUsuario.usuarioLogado;
-    meusAnuncios.clear();
-
-    if (usuario.id.isNotEmpty) {
-      _carregarItensCarrinho();
-    }
-  }
-
-  void _carregarItensCarrinho() {
-
-    _subscriptionMeusAnuncios = _bancoDados
-        .collection("meus_anuncios")
-        .doc(usuario.id)
-        .collection("anuncios")
-        .snapshots()
-        .listen((event) {
-          meusAnuncios.clear();
-          for (final doc in event.docs) {
-            meusAnuncios.add(Anuncio.fromDocumentSnapshot(doc));
-          }
-          notifyListeners();
-        });
-  }
-
   @override
   void dispose() {
     super.dispose();
     _subscription?.cancel();
-    _subscriptionMeusAnuncios?.cancel();
   }
 }

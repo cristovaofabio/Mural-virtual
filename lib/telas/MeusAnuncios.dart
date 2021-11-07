@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/main.dart';
 import 'package:olx/model/Anuncio.dart';
-import 'package:olx/model/gerenciadores/GerenciadorAnuncio.dart';
+import 'package:olx/model/gerenciadores/GerenciadorMeusAnuncios.dart';
 import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/widget/ItemAnuncio.dart';
@@ -20,28 +20,7 @@ class MeusAnuncios extends StatefulWidget {
 
 class _MeusAnunciosState extends State<MeusAnuncios> {
   final _controller = StreamController<QuerySnapshot>.broadcast();
-  FirebaseFirestore _bancoDados = FirebaseFirestore.instance;
-  String? _idUsuarioLogado;
   late Facade _facade;
-
-  Future _adicionarListenerAnuncios() async {
-    await _recuperarDadosUsuario();
-
-    final stream = _bancoDados
-        .collection("meus_anuncios")
-        .doc(_idUsuarioLogado)
-        .collection("anuncios")
-        .snapshots();
-
-    stream.listen((dados) {
-      _controller.add(dados);
-    });
-  }
-
-  _recuperarDadosUsuario() async {
-    _facade = new Facade(usuario: null);
-    _idUsuarioLogado = await _facade.idUsuarioLogado();
-  }
 
   Future<void> _removerAnuncio(Anuncio anuncio) async {
     _facade = new Facade(usuario: null, anuncio: anuncio);
@@ -57,7 +36,6 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
   @override
   void initState() {
     super.initState();
-    _adicionarListenerAnuncios();
   }
 
   _barraProgresso(BuildContext context) {
@@ -159,15 +137,15 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
         foregroundColor: Colors.white,
         child: Icon(Icons.add),
       ),
-      body: Consumer<GerenciadorAnuncio>(
-        builder: (_, gerenciadorAnuncio, __) {
-          if (gerenciadorAnuncio.meusAnuncios.isEmpty) {
+      body: Consumer<GerenciadorMeusAnuncio>(
+        builder: (_, gerenciadorMeusAnuncios, __) {
+          if (gerenciadorMeusAnuncios.meusAnuncios.isEmpty) {
             return MensagemNaoTemDados(
                 texto: "Não existem anúncios cadastrados!");
           } else {
-            List<Anuncio> meusAnuncios = gerenciadorAnuncio.meusAnuncios;
+            List<Anuncio> meusAnuncios = gerenciadorMeusAnuncios.meusAnuncios;
             return ListView.builder(
-              itemCount: gerenciadorAnuncio.meusAnuncios.length,
+              itemCount: gerenciadorMeusAnuncios.meusAnuncios.length,
               itemBuilder: (context, indice) {
                 Anuncio anuncio = meusAnuncios[indice];
 

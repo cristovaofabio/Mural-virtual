@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:olx/model/gerenciadores/GerenciadorAnuncio.dart';
+import 'package:olx/model/gerenciadores/GerenciadorMeusAnuncios.dart';
 import 'package:olx/model/gerenciadores/GerenciadorUsuario.dart';
 import 'package:olx/telas/Anuncios.dart';
 import 'package:olx/util/GeradorRotas.dart';
@@ -32,11 +33,11 @@ void main() async {
           lazy: false, //Carregar imediatamente o GerenciadorAnuncio
         ),
         //Sempre que o ítem 1 sofrer alguma modificação, o ítem 2 é altualizado:
-        ChangeNotifierProxyProvider<GerenciadorUsuario, GerenciadorAnuncio>(
-          create: (_) => GerenciadorAnuncio(),
+        ChangeNotifierProxyProvider<GerenciadorUsuario, GerenciadorMeusAnuncio>(
+          create: (_) => GerenciadorMeusAnuncio(),
           lazy: false,
-          update: (_, gerenciadorUsuario, gerenciadorAnuncio) =>
-              gerenciadorAnuncio!..atualizarUsuario(gerenciadorUsuario),
+          update: (_, gerenciadorUsuario, gerenciadorMeusAnuncio) =>
+              gerenciadorMeusAnuncio!..atualizarUsuario(gerenciadorUsuario.usuarioLogado),
         ),
       ],
       child: MaterialApp(
