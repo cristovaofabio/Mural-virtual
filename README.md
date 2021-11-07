@@ -13,9 +13,6 @@
 ## Armazenamento de dados:
 - Nuvem: [Firebase]( https://firebase.google.com/)
 
-## Design Pattern:
-- [Facade](https://en.wikipedia.org/wiki/Facade_pattern)
-
 ## State Management:
 - [Provider](https://medium.com/codechai/provider-state-management-in-flutter-d453e73537c5)
 
