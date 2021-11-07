@@ -40,7 +40,7 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
 
   _barraProgresso(BuildContext context) {
     showDialog(
-      barrierDismissible: false,
+      barrierDismissible: false, //não pode fechar o dialog quando houver clique fora dele
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -68,6 +68,7 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
   _caixaAlerta(BuildContext context, Anuncio anuncio) {
     return showDialog(
       context: context,
+      barrierDismissible: false, //não pode fechar o dialog quando houver clique fora dele
       builder: (builder) {
         return AlertDialog(
           elevation: 2,
