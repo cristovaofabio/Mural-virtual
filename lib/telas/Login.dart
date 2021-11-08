@@ -93,142 +93,150 @@ class _LoginState extends State<Login> {
             ),
             padding: EdgeInsets.all(10),
             child: Center(
-              child: Consumer<GerenciadorUsuario>(
-                  builder: (_, gerenciadorUsuario, __) {
-                return ListView(
-                  //primary: false,
-                  children: <Widget>[
-                    SizedBox(
-                      height: 50,
+              child: ListView(
+                //primary: false,
+                children: <Widget>[
+                  SizedBox(
+                    height: 50,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: InputCustomizado(
+                      "Digite o seu e-mail",
+                      Icon(Icons.email_outlined, color: Colors.black),
+                      controller: _controllerEmail,
+                      autofocus: true,
+                      type: TextInputType.emailAddress,
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: InputCustomizado(
-                        "Digite o seu e-mail",
-                        Icon(Icons.email_outlined, color: Colors.black),
-                        controller: _controllerEmail,
-                        autofocus: true,
-                        type: TextInputType.emailAddress,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: InputCustomizado(
+                      "Digite uma senha",
+                      Icon(Icons.vpn_key, color: Colors.black),
+                      controller: _controllerSenha,
+                      maxLinhas: 1,
+                      obscure: true,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text("Logar"),
+                      Switch(
+                        value: _cadastrar,
+                        onChanged: (bool valor) {
+                          setState(() {
+                            _cadastrar = valor;
+                          });
+                        },
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: InputCustomizado(
-                        "Digite uma senha",
-                        Icon(Icons.vpn_key, color: Colors.black),
-                        controller: _controllerSenha,
-                        maxLinhas: 1,
-                        obscure: true,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text("Logar"),
-                        Switch(
-                            value: _cadastrar,
-                            onChanged: (bool valor) {
-                              setState(() {
-                                _cadastrar = valor;
-                              });
-                            }),
-                        Text("Cadastrar"),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10, bottom: 20),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {
-                            //Abrir a página de recuperação de senha
-                            Navigator.pushNamed(
-                                context, GeradorRotas.ROTA_RECUPERAR_SENHA);
-                          },
-                          child: Text(
-                            "Esqueci minha senha!",
-                            style: TextStyle(
-                              color: Colors.deepPurple,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Text("Cadastrar"),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 20),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () {
+                          //Abrir a página de recuperação de senha
+                          Navigator.pushNamed(
+                              context, GeradorRotas.ROTA_RECUPERAR_SENHA);
+                        },
+                        child: Text(
+                          "Esqueci minha senha!",
+                          style: TextStyle(
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                    AnimatedSwitcher(
-                      duration: Duration(milliseconds: 200),
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                        return ScaleTransition(child: child, scale: animation);
-                      },
-                      child: gerenciadorUsuario.carregando
-                          ? TextButton(
-                              onPressed: () {},
-                              child: CircularProgressIndicator(
-                                color: Colors.deepPurple,
+                  ),
+                  //Todas as vezes em que há alteração em GerenciadorUsuario, a classe Consumer é chamada:
+                  Consumer<GerenciadorUsuario>(
+                    builder: (_, gerenciadorUsuario, __) {
+                      return AnimatedSwitcher(
+                        duration: Duration(milliseconds: 200),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return ScaleTransition(
+                            child: child,
+                            scale: animation,
+                          );
+                        },
+                        child: gerenciadorUsuario.carregando
+                            ? TextButton(
+                                onPressed: () {},
+                                child: CircularProgressIndicator(
+                                  color: Colors.deepPurple,
+                                ),
+                              )
+                            : BotaoCustomizado(
+                                texto: _cadastrar == false
+                                    ? "Entrar"
+                                    : "Cadastrar",
+                                onPressed: () async {
+                                  String email = _controllerEmail.text;
+                                  String senha = _controllerSenha.text;
+
+                                  Usuario usuario = Usuario();
+                                  usuario.email = email;
+                                  usuario.senha = senha;
+
+                                  if (_validarCampos(context) &&
+                                      _cadastrar == false) {
+                                    gerenciadorUsuario.entrar(
+                                      usuario: usuario,
+                                      sucesso: (_) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            GeradorRotas.ROTA_INICIAL,
+                                            (_) => false);
+                                      },
+                                      fracasso: (erro) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          mensagemConfirmacao(
+                                            '$erro',
+                                            Color(0xFFEF5350),
+                                            Icons.mood_bad_sharp,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  } else if (_validarCampos(context) &&
+                                      _cadastrar == true) {
+                                    //cadastrar um novo usuario:
+
+                                    gerenciadorUsuario.cadastrar(
+                                      usuario: usuario,
+                                      fracasso: (erro) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          mensagemConfirmacao(
+                                            '$erro',
+                                            Color(0xFFEF5350),
+                                            Icons.mood_bad_sharp,
+                                          ),
+                                        );
+                                      },
+                                      sucesso: (_) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            GeradorRotas.ROTA_INICIAL,
+                                            (_) => false);
+                                      },
+                                    );
+                                  } else {}
+                                },
                               ),
-                            )
-                          : BotaoCustomizado(
-                              texto:
-                                  _cadastrar == false ? "Entrar" : "Cadastrar",
-                              onPressed: () async {
-                                String email = _controllerEmail.text;
-                                String senha = _controllerSenha.text;
-
-                                Usuario usuario = Usuario();
-                                usuario.email = email;
-                                usuario.senha = senha;
-
-                                if (_validarCampos(context) && _cadastrar == false) {
-                                  gerenciadorUsuario.entrar(
-                                    usuario: usuario,
-                                    sucesso: (_) {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          GeradorRotas.ROTA_INICIAL,
-                                          (_) => false);
-                                    },
-                                    fracasso: (erro) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        mensagemConfirmacao(
-                                          '$erro',
-                                          Color(0xFFEF5350),
-                                          Icons.mood_bad_sharp,
-                                        ),
-                                      );
-                                    },
-                                  );
-                                } else if (_validarCampos(context) &&
-                                    _cadastrar == true) {
-                                  //cadastrar um novo usuario:
-
-                                  gerenciadorUsuario.cadastrar(
-                                    usuario: usuario,
-                                    fracasso: (erro) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        mensagemConfirmacao(
-                                          '$erro',
-                                          Color(0xFFEF5350),
-                                          Icons.mood_bad_sharp,
-                                        ),
-                                      );
-                                    },
-                                    sucesso: (_) {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          GeradorRotas.ROTA_INICIAL,
-                                          (_) => false);
-                                    },
-                                  );
-                                } else {}
-                              },
-                            ),
-                    ),
-                  ],
-                );
-              }),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ],
