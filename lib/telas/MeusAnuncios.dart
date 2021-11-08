@@ -8,6 +8,7 @@ import 'package:olx/model/gerenciadores/GerenciadorMeusAnuncios.dart';
 import 'package:olx/util/facade/Facade.dart';
 import 'package:olx/util/GeradorRotas.dart';
 import 'package:olx/util/widget/ItemAnuncio.dart';
+import 'package:olx/util/widget/MensagemCarregando.dart';
 import 'package:olx/util/widget/MensagemNaoTemDados.dart';
 import 'package:provider/provider.dart';
 
@@ -140,10 +141,15 @@ class _MeusAnunciosState extends State<MeusAnuncios> {
       ),
       body: Consumer<GerenciadorMeusAnuncio>(
         builder: (_, gerenciadorMeusAnuncios, __) {
-          if (gerenciadorMeusAnuncios.meusAnuncios.isEmpty) {
+          if(gerenciadorMeusAnuncios.carregandoDados){
+            return MensagemCarregando(texto: "Carregando anúncios...");
+          }
+          else if (gerenciadorMeusAnuncios.meusAnuncios.isEmpty && gerenciadorMeusAnuncios.carregandoDados==false ) {
             return MensagemNaoTemDados(
                 texto: "Não existem anúncios cadastrados!");
-          } else {
+          } 
+          
+          else {
             List<Anuncio> meusAnuncios = gerenciadorMeusAnuncios.meusAnuncios;
             return ListView.builder(
               itemCount: gerenciadorMeusAnuncios.meusAnuncios.length,

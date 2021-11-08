@@ -11,6 +11,13 @@ class GerenciadorMeusAnuncio extends ChangeNotifier {
 
   Usuario? usuario;
   List<Anuncio> meusAnuncios = [];
+  bool _carregandoDados = false;
+
+  bool get carregandoDados => _carregandoDados;
+  set carregandoDados(bool value){
+    _carregandoDados = value;
+    notifyListeners();
+  }
 
   void atualizarUsuario(Usuario usuarioInformado) {
     this.usuario = usuarioInformado;
@@ -23,6 +30,7 @@ class GerenciadorMeusAnuncio extends ChangeNotifier {
   }
 
   void _carregarMeusAnuncios() {
+    carregandoDados = true;
 
     _subscriptionMeusAnuncios = _bancoDados
         .collection("meus_anuncios")
@@ -34,6 +42,7 @@ class GerenciadorMeusAnuncio extends ChangeNotifier {
           for (final doc in event.docs) {
             meusAnuncios.add(Anuncio.fromDocumentSnapshot(doc));
           }
+          carregandoDados=false;
           notifyListeners();
         });
   }

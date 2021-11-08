@@ -35,7 +35,7 @@ void main() async {
         //Sempre que o ítem 1 sofrer alguma modificação, o ítem 2 é altualizado:
         ChangeNotifierProxyProvider<GerenciadorUsuario, GerenciadorMeusAnuncio>(
           create: (_) => GerenciadorMeusAnuncio(),
-          lazy: false,
+          //lazy: false, //os dados não serão carregados automaticamente
           update: (_, gerenciadorUsuario, gerenciadorMeusAnuncio) =>
               gerenciadorMeusAnuncio!..atualizarUsuario(gerenciadorUsuario.usuarioLogado),
         ),
