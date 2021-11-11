@@ -44,6 +44,8 @@ dependencies:
   flutter_slidable: ^0.6.0 #Lista lateral deslizante
   provider: ^6.0.0 #monitorar mudanças em algumas variáveis
   transparent_image: ^2.0.0 #mostrar suavemente as imagens
+  firebase_messaging: ^11.1.0 #entregar mensagens
+  flutter_local_notifications: ^9.1.0 #mostrar localmente notificacoes
 
 dev_dependencies:
   flutter_test:
