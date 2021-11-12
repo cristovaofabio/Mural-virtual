@@ -1,3 +1,4 @@
+//import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:olx/main.dart';
@@ -31,15 +32,48 @@ class _AnunciosState extends State<Anuncios> {
     _listaItensEstados = Filtros.getEstados();
   }
 
+  /* _listenNotification() {
+    FirebaseMessaging.onMessage.listen((mensagem) {
+      if (mensagem.notification != null) {
+        print(mensagem.notification!.body);
+        print(mensagem.notification!.title);
+      }
+    });
+  }
+
+  //O app precisa estar aberto em basckground quando receber a notificação:
+  //Ao clicar na notificação o app será aberto na página determinada pela rota:
+  _listenOpenedMessage() {
+    FirebaseMessaging.onMessageOpenedApp.listen((mensagem) {
+      final routeMessage = mensagem
+          .data["route"]; //a rota é determinada antes de enviar a mensagem
+
+      Navigator.pushNamedAndRemoveUntil(context, routeMessage, (_) => false);
+
+      print(routeMessage);
+    });
+  } */
+
   @override
   void initState() {
     super.initState();
     _carregarItensDropDown();
+    //Mostrar uma notificação que direciona o app para uma screen específica,
+    //quando o app estiver totalmente fechado:
+    /* FirebaseMessaging.instance.getInitialMessage().then((mensagem) {
+      if (mensagem != null) {
+        final routeMessage = mensagem.data["route"]; //a rota é determinada antes de enviar a mensagem
+
+        Navigator.pushNamedAndRemoveUntil(context, routeMessage, (_) => false);
+      }
+    });
+    
+    _listenNotification();
+    _listenOpenedMessage(); */
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Todos os anúncios"),
