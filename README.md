@@ -1,22 +1,22 @@
-# Projeto flutter: Mural virtual
+# Flutter project: Virtual mural
 
-## Funcionalidades:
-- Autenticar com e-mail e senha;
-- Redefinir senha;
-- Adicionar um novo anúncio;
-- Visualizar os meus anúncios;
-- Excluir anúncio adicionado por mim;
-- Visualizar, por meio de um GridView, e filtrar os anúncios de outras pessoas;
-- Visualizar detalhes de um determinado anúncio;
-- Fazer uma ligação para o anunciante.
+## Resources:
+- Authenticate with email and password;
+- Redefine password;
+- Add a new ad;
+- View my ads;
+- Delete ad added by me;
+- View, through a GridView, and filter other people's ads;
+- View details of a particular ad;
+- Make a call to the advertiser.
 
-## Armazenamento de dados:
-- Nuvem: [Firebase]( https://firebase.google.com/)
+## Data storage:
+- Cloud: [Firebase]( https://firebase.google.com/)
 
 ## State Management:
 - [Provider](https://medium.com/codechai/provider-state-management-in-flutter-d453e73537c5)
 
-## Algumas telas do app:
+## Some screens in the app:
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/19698296/136566327-e5708eb6-3a64-42ef-96a4-3b2ab1a5eb1a.png" width="300px" />
