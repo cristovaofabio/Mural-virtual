@@ -1,4 +1,4 @@
-# Flutter project: Virtual mural
+# Virtual mural 📢
 
 ## Resources:
 - Authenticate with email and password;
